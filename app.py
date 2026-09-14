@@ -1,0 +1,76 @@
+import streamlit as st
+import time
+import pandas as pd
+import numpy as np
+
+# إعدادات الصفحة
+st.set_page_config(
+    page_title="رَصِين | Raseen AI Agent",
+    page_icon="⚙️",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# تنسيقات الواجهة (CSS)
+st.markdown("""
+<style>
+    .main-title { font-size: 2.2rem; font-weight: 800; color: #1E88E5; text-align: right; }
+    .sub-title { font-size: 1rem; color: #555555; text-align: right; margin-bottom: 25px; }
+    div[data-testid="stMetricValue"] { font-size: 1.8rem; font-weight: bold; }
+</style>
+""", unsafe_allow_html=True)
+
+# العنوان الرئيسي
+st.markdown('<div class="main-title">⚙️ منصة رَصِين | Autonomous Predictive Maintenance Agent</div>', unsafe_allow_html=True)
+st.markdown('<div class="sub-title">نظام الوكيل الذكي للتحليل الاستباقي واتخاذ القرارات الآلية للمعدات الصناعية</div>', unsafe_allow_html=True)
+
+# القائمة الجانبية لحساسات IoT
+st.sidebar.header("🎛️ محاكاة الحساسات (IoT Telemetry)")
+temp = st.sidebar.slider("🌡️ درجة الحرارة (°C)", 40, 130, 85)
+vib = st.sidebar.slider("📳 مستوى الاهتزاز (mm/s)", 0.5, 10.0, 3.5)
+rpm = st.sidebar.slider("🔄 سرعة الدوران (RPM)", 500, 3000, 1800)
+
+# حساب المؤشرات التشغيلية
+rul = max(0, int(120 - (temp * 0.7 + vib * 5.5)))
+csi = min(100, int((temp / 130) * 55 + (vib / 10.0) * 45))
+
+# عرض المؤشرات
+col1, col2, col3 = st.columns(3)
+col1.metric("العمر المتبقي (RUL)", f"{rul} ساعة", delta="- حرج" if rul < 25 else "طبيعي", delta_color="inverse")
+col2.metric("مؤشر الإجهاد (CSI)", f"{csi}%", delta="+ مرتفع" if csi > 65 else "آمن", delta_color="inverse")
+col3.metric("حالة التشغيل", "🚨 خطر" if csi > 65 else "🟢 مستقر")
+
+st.divider()
+
+left_col, right_col = st.columns([1, 1])
+
+# رسم البياني
+with left_col:
+    st.subheader("📊 قراءات الحساسات اللحظية")
+    chart_data = pd.DataFrame(
+        np.random.randn(25, 2) / [12, 2.5] + [temp, vib],
+        columns=['درجة الحرارة °C', 'الاهتزاز mm/s']
+    )
+    st.line_chart(chart_data)
+
+# منطق الـ AI Agent
+with right_col:
+    st.subheader("🤖 سجل تفكير واتخاذ القرار (AI Reasoning)")
+    if st.button("🚀 تشغيل الـ AI Agent للتحليل والتنفيذ", type="primary", use_container_width=True):
+        with st.status("🧠 [Reasoning Loop] جاري تقييم المخاطر واستدعاء الأدوات...", expanded=True) as status:
+            st.write(f"🔍 **1. Sensing:** قراءة الحساسات الحالية: الحرارة = {temp}°C، الاهتزاز = {vib} mm/s.")
+            time.sleep(1)
+            st.write(f"📐 **2. ML Evaluation:** حساب مؤشر الإجهاد CSI = **{csi}%** والعمر المتبقي RUL = **{rul} ساعة**.")
+            time.sleep(1)
+            
+            if csi > 65:
+                st.write("⚠️ **3. Anomaly Detected:** القراءات تجاوزت حدود الأمان المسموح بها!")
+                st.write("⚙️ **4. Autonomous Tool Call:** تنفيذ `reduce_motor_speed_api(reduction=30%)` خفض سرعة المحرك تلقائياً.")
+                time.sleep(1)
+                st.write("✉️ **5. Autonomous Tool Call:** تنفيذ `create_work_order_api(priority='HIGH')` وإرسال أمر صيانة عاجل.")
+                status.update(label="🚨 تم التدخل الآلي وتخفيف الحمل لحماية المحرك!", state="error")
+                st.error("✅ **نتيجة قرار نظام رَصِين:** تم تنفيذ إجراءات الحماية والوقاية بنجاح بدون انتظار التدخل البشري.")
+            else:
+                st.write("🟢 **3. Status Normal:** جميع المؤشرات ضمن النطاق الآمن.")
+                status.update(label="✅ المحرك يعمل بكفاءة واستقرار تام", state="complete")
+                st.success("✨ **نتيجة قرار نظام رَصِين:** لا تتطلب المعدة أي تدخل حالياً.")

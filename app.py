@@ -1,13 +1,8 @@
 import streamlit as st
-
 import time
-
 import pandas as pd
-
 import numpy as np
-
 from tools import reduce_motor_speed_api, create_work_order_api
-
 
 # إعدادات الصفحة
 st.set_page_config(
@@ -70,118 +65,40 @@ with right_col:
             time.sleep(1)
             
             if csi > 65:
-st.write(
-    "⚠️ **3. Anomaly Detected:** "
-    "القراءات تجاوزت حدود الأمان المسموح بها!"
-)
+                st.write("⚠️ **3. Anomaly Detected:** القراءات تجاوزت حدود الأمان المسموح بها!")
+                time.sleep(1)
 
-time.sleep(1)
+                st.write("🧠 **4. Agent Decision:** تم اتخاذ قرار بتخفيف حمل المحرك وإنشاء امر صيانة.")
+                time.sleep(1)
 
-# ============================
-# TOOL 1: Reduce Motor Speed
-# ============================
+                # ============================
+                # TOOL 1: Reduce Motor Speed
+                # ============================
+                st.write("⚙️ **Autonomous Tool Call:** تشغيل أداة خفض سرعة المحرك...")
+                motor_result = reduce_motor_speed_api(current_rpm=rpm, reduction_percent=30)
 
-st.write("🧠 **4. Agent Decision:**")
-st.write(
-    "تم اتخاذ قرار بتخفيف حمل المحرك "
-    "لتقليل احتمالية حدوث عطل."
-)
+                if motor_result["success"]:
+                    st.success(f"✅ {motor_result['message']}")
+                    st.write(f"📊 السرعة السابقة: **{motor_result['old_rpm']} RPM** | السرعة الجديدة: **{motor_result['new_rpm']} RPM**")
 
-time.sleep(1)
+                time.sleep(1)
 
-st.write("⚙️تقليل احتمالية حدوثتشغيل أداة خفض سرعة المحرك...")
+                # ============================
+                # TOOL 2: Create Work Order
+                # ============================
+                st.write("✉️ **Autonomous Tool Call:** إنشاء أمر صيانة تلقائي...")
+                work_order_result = create_work_order_api(priority="HIGH", equipment="Motor-01")
 
-motor_result = reduce_motor_speed_api(
-    current_rpm=rpm,
-    reduction_percent=30
-)
+                if work_order_result["success"]:
+                    st.success(f"🔧 {work_order_result['message']}")
+                    st.write(f"الأولوية: **{work_order_result['priority']}** | الحالة: **{work_order_result['status']}**")
 
-if motor_result["success"]:
+                time.sleep(1)
 
-    st.success(
-        f"✅ {motor_result['message']}"
-    )
-
-    st.write(
-        f"📊 السرعة السابقة: "
-        f"**{motor_result['old_rpm']} RPM**"
-    )
-
-    st.write(
-        f"📊 السرعة الجديدة: "
-        f"**{motor_result['new_rpm']} RPM**"
-    )
-
-time.sleep(1)
-
-# ============================
-# TOOL 2: Create Work Order
-# ============================
-
-st.write(
-    "✉️]:
-
-    st.success("
-    "إنشاء أمر صيانة..."
-)
-
-work_order_result = create_work_order_api(
-    priority="HIGH",
-    equipment="Motor-01"
-)
-
-if work_order_result["success"]:
-
-    st.success(
-        f"🔧 أمر الصيانة=================
-
-st.write("🧠 **4. Agent"
-        f"تم إنشاؤه بنجاح."
-    )
-
-    st.write(
-        f"الأولوية: **{work_order_result['priority']}**"
-    )
-
-    st.write(
-        f"الحالة: **{work_order_result['status']}**"
-    )
-
-time.sleep(1)
-
-status.update(
-    label="🚨 تم التدخل الآلي بنجاح!",
-    state="error"
-)
-
-st.error(
-    "🤖حرك "
-    "لتقليل احتما"
-    "تم اكتشاف الخطر، وتخفيف سرعة المحرك، "
-    "وإنشاء أمر صيانة تلقائيًا."
-)
-else:
-st.write(
-    "🟢
-)
-
-time.sleep(1)
-
-# =="
-    "جميع المؤشرات ضمن النطاق الآمن."
-)
-
-status.update(
-    label="✅ المحرك يعمل بكفاءة واستقرار تام",
-    state="complete"
-)
-
-st.success(
-    "✨======
-# TOOL 1: Reduce"
-    "لا تتطلب المعدة أي تدخل حاليًا."
-)
+                status.update(label="🚨 تم التدخل الآلي بنجاح!", state="error")
+                st.error("🤖 تم اكتشاف الخطر، وتخفيف سرعة المحرك، وإنشاء أمر صيانة تلقائيًا.")
             else:
                 st.write("🟢 **3. Status Normal:** جميع المؤشرات ضمن النطاق الآمن.")
+                time.sleep(1)
                 status.update(label="✅ المحرك يعمل بكفاءة واستقرار تام", state="complete")
-                st.success("✨ **نتيجة قرار نظام رَصِين:** لا تتطلب المعدة أي تدخل حالياً.")
+                st.success("✨ لا تتطلب المعدة أي تدخل حاليًا.")

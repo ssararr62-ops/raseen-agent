@@ -6,13 +6,8 @@ import pandas as pd
 
 import numpy as np
 
-from tools import (
+from tools import reduce_motor_speed_api, create_work_order_api
 
-    reduce_motor_speed_api,
-
-    create_work_order_api
-
-)
 
 # إعدادات الصفحة
 st.set_page_config(

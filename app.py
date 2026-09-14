@@ -1,7 +1,18 @@
 import streamlit as st
+
 import time
+
 import pandas as pd
+
 import numpy as np
+
+from tools import (
+
+    reduce_motor_speed_api,
+
+    create_work_order_api
+
+)
 
 # إعدادات الصفحة
 st.set_page_config(
@@ -64,12 +75,117 @@ with right_col:
             time.sleep(1)
             
             if csi > 65:
-                st.write("⚠️ **3. Anomaly Detected:** القراءات تجاوزت حدود الأمان المسموح بها!")
-                st.write("⚙️ **4. Autonomous Tool Call:** تنفيذ `reduce_motor_speed_api(reduction=30%)` خفض سرعة المحرك تلقائياً.")
-                time.sleep(1)
-                st.write("✉️ **5. Autonomous Tool Call:** تنفيذ `create_work_order_api(priority='HIGH')` وإرسال أمر صيانة عاجل.")
-                status.update(label="🚨 تم التدخل الآلي وتخفيف الحمل لحماية المحرك!", state="error")
-                st.error("✅ **نتيجة قرار نظام رَصِين:** تم تنفيذ إجراءات الحماية والوقاية بنجاح بدون انتظار التدخل البشري.")
+st.write(
+    "⚠️ **3. Anomaly Detected:** "
+    "القراءات تجاوزت حدود الأمان المسموح بها!"
+)
+
+time.sleep(1)
+
+# ============================
+# TOOL 1: Reduce Motor Speed
+# ============================
+
+st.write("🧠 **4. Agent Decision:**")
+st.write(
+    "تم اتخاذ قرار بتخفيف حمل المحرك "
+    "لتقليل احتمالية حدوث عطل."
+)
+
+time.sleep(1)
+
+st.write("⚙️تقليل احتمالية حدوثتشغيل أداة خفض سرعة المحرك...")
+
+motor_result = reduce_motor_speed_api(
+    current_rpm=rpm,
+    reduction_percent=30
+)
+
+if motor_result["success"]:
+
+    st.success(
+        f"✅ {motor_result['message']}"
+    )
+
+    st.write(
+        f"📊 السرعة السابقة: "
+        f"**{motor_result['old_rpm']} RPM**"
+    )
+
+    st.write(
+        f"📊 السرعة الجديدة: "
+        f"**{motor_result['new_rpm']} RPM**"
+    )
+
+time.sleep(1)
+
+# ============================
+# TOOL 2: Create Work Order
+# ============================
+
+st.write(
+    "✉️]:
+
+    st.success("
+    "إنشاء أمر صيانة..."
+)
+
+work_order_result = create_work_order_api(
+    priority="HIGH",
+    equipment="Motor-01"
+)
+
+if work_order_result["success"]:
+
+    st.success(
+        f"🔧 أمر الصيانة=================
+
+st.write("🧠 **4. Agent"
+        f"تم إنشاؤه بنجاح."
+    )
+
+    st.write(
+        f"الأولوية: **{work_order_result['priority']}**"
+    )
+
+    st.write(
+        f"الحالة: **{work_order_result['status']}**"
+    )
+
+time.sleep(1)
+
+status.update(
+    label="🚨 تم التدخل الآلي بنجاح!",
+    state="error"
+)
+
+st.error(
+    "🤖حرك "
+    "لتقليل احتما"
+    "تم اكتشاف الخطر، وتخفيف سرعة المحرك، "
+    "وإنشاء أمر صيانة تلقائيًا."
+)
+else:
+st.write(
+    "🟢
+)
+
+time.sleep(1)
+
+# =="
+    "جميع المؤشرات ضمن النطاق الآمن."
+)
+
+status.update(
+    label="✅ المحرك يعمل بكفاءة واستقرار تام",
+    state="complete"
+)
+
+st.success(
+    "✨======
+# TOOL 1: Reduce"
+    "لا تتطلب المعدة أي تدخل حاليًا."
+)
             else:
                 st.write("🟢 **3. Status Normal:** جميع المؤشرات ضمن النطاق الآمن.")
                 status.update(label="✅ المحرك يعمل بكفاءة واستقرار تام", state="complete")
